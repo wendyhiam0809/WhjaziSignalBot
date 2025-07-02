@@ -15,7 +15,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🚀 Hello Wendy! Your bot is live and ready.")
 
 async def signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📈 BTC Signal: Buy @ $60,000 – Target: $63,000 – SL: $58,500")
+    await update.message.reply_text(
+    "📊 *Signal Alert: BTC/USDT*\n"
+    "Action: BUY\n"
+    "Entry: 60,800\n"
+    "Target: 63,000\n"
+    "Stop-Loss: 59,500\n"
+    "Timeframe: 15m",
+    parse_mode='Markdown'
+)
+
 
 async def track(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("📊 Tracking portfolio performance... (Sample response)")
