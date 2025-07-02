@@ -1,66 +1,59 @@
-import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-
 import os
+import logging
+import requests
+import datetime
+import time
+from telegram import Bot
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
+# Get secrets from environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
+bot = Bot(token=BOT_TOKEN)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🚀 Hello Wendy! Your bot is live and ready.")
+# CoinGecko API URL
+COINS = ['bitcoin', 'ethereum', 'ripple', 'cardano', 'solana']
+URL_TEMPLATE = "https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies=usd"
 
-async def signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-    "📊 *Signal Alert: BTC/USDT*\n"
-    "Action: BUY\n"
-    "Entry: 60,800\n"
-    "Target: 63,000\n"
-    "Stop-Loss: 59,500\n"
-    "Timeframe: 15m",
-    parse_mode='Markdown'
-)
-
-
-async def track(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📊 Tracking portfolio performance... (Sample response)")
-
-async def strategy(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🧠 Strategy tip: Always use a stop-loss. Risk management first!")
-
-from telegram import Update
-from telegram.ext import CommandHandler, ContextTypes
-
-# /send BTC BUY 62800 65500 61500
-async def send_signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
+def get_prices():
+    ids = ",".join(COINS)
+    url = URL_TEMPLATE.format(ids)
     try:
-        symbol, action, entry, target, stop = context.args
-        response = (
-            f"📊 *Signal Alert: {symbol}/USDT*\n"
-            f"Action: {action.upper()}\n"
-            f"Entry: {entry}\n"
-            f"Target: {target}\n"
-            f"Stop-Loss: {stop}\n"
-            f"Timeframe: 15m"
-        )
-        await update.message.reply_text(response, parse_mode="Markdown")
+        response = requests.get(url)
+        return response.json()
     except Exception as e:
-        await update.message.reply_text(
-            "⚠️ Invalid format. Please use:\n/send BTC BUY 62800 65500 61500"
-        )
+        logger.error(f"Failed to fetch prices: {e}")
+        return {}
 
+def format_signal(prices):
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    lines = [f"📊 *Auto Signals* — {now} (NYC Open)\n"]
+    for coin, data in prices.items():
+        price = data['usd']
+        lines.append(f"🔹 *{coin.capitalize()}*: ${price:,}")
+    return "\n".join(lines)
 
-if __name__ == '__main__':
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("signal", signal))
-    app.add_handler(CommandHandler("track", track))
-    app.add_handler(CommandHandler("strategy", strategy))
-    app.add_handler(CommandHandler("send", send_signal))
-    app.run_polling()
+def send_signal():
+    prices = get_prices()
+    if not prices:
+        return
+    message = format_signal(prices)
+    try:
+        bot.send_message(chat_id=CHAT_ID, text=message, parse_mode="Markdown")
+        logger.info("✅ Signal sent")
+    except Exception as e:
+        logger.error(f"Failed to send signal: {e}")
+
+# Run daily at New York market open (9:30 AM EST / 4:30 PM KSA)
+while True:
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=3)  # Adjust to KSA time
+    if now.hour == 16 and now.minute == 30:
+        send_signal()
+        time.sleep(60)  # Avoid multiple sends in the same minute
+    time.sleep(30)
 
 
