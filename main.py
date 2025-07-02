@@ -7,7 +7,9 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-BOT_TOKEN = 'REPLACE_WITH_YOUR_BOT_TOKEN'
+import os
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🚀 Hello Wendy! Your bot is live and ready.")
