@@ -60,7 +60,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("signal", signal))
     app.add_handler(CommandHandler("track", track))
     app.add_handler(CommandHandler("strategy", strategy))
+    app.add_handler(CommandHandler("send", send_signal))
     app.run_polling()
 
-app.add_handler(CommandHandler("send", send_signal))
 
