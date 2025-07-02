@@ -32,6 +32,28 @@ async def track(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def strategy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🧠 Strategy tip: Always use a stop-loss. Risk management first!")
 
+from telegram import Update
+from telegram.ext import CommandHandler, ContextTypes
+
+# /send BTC BUY 62800 65500 61500
+async def send_signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        symbol, action, entry, target, stop = context.args
+        response = (
+            f"📊 *Signal Alert: {symbol}/USDT*\n"
+            f"Action: {action.upper()}\n"
+            f"Entry: {entry}\n"
+            f"Target: {target}\n"
+            f"Stop-Loss: {stop}\n"
+            f"Timeframe: 15m"
+        )
+        await update.message.reply_text(response, parse_mode="Markdown")
+    except Exception as e:
+        await update.message.reply_text(
+            "⚠️ Invalid format. Please use:\n/send BTC BUY 62800 65500 61500"
+        )
+
+
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
@@ -39,3 +61,6 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("track", track))
     app.add_handler(CommandHandler("strategy", strategy))
     app.run_polling()
+
+app.add_handler(CommandHandler("send", send_signal))
+
