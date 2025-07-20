@@ -1,5 +1,12 @@
-python-telegram-bot==20.7
-ccxt
-pycoingecko
+python-telegram-bot==13.15
 requests
+python-dotenv
+schedule
+pandas
+numpy
+httpx
+httpcore
+asyncio
+pycoingecko
+ccxt
 
