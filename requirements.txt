@@ -1,11 +1,5 @@
-python-telegram-bot[webhooks]==20.3
-requests
-python-dotenv
-schedule
-pandas
-numpy
-httpx
-httpcore
-asyncio
+python-telegram-bot==20.7
 ccxt
 pycoingecko
+requests
+
