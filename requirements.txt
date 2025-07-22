@@ -1,9 +1,2 @@
 python-telegram-bot==20.7
-requests
-python-dotenv
-schedule
-pandas
-numpy
-ccxt
-pycoingecko
 
