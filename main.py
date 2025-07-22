@@ -2,7 +2,7 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = os.getenv("BOT_TOKEN")  # Set BOT_TOKEN in your Render environment!
+TOKEN = os.getenv("BOT_TOKEN")  # Make sure your BOT_TOKEN is set in Render!
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello Wendy! 🚀 The bot is working again.")
